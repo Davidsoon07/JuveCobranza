@@ -1,0 +1,30 @@
+
+<div class="container" style="max-width:720px;margin:1rem auto;">
+  <h2>JuventudesCobranza - Captura</h2>
+  <!-- Cámara -->
+  <section style="margin:1rem 0;">
+    <h3>Cámara</h3>
+    <video #video autoplay playsinline style="width:100%;border:1px solid #ccc;border-radius:8px;"></video>
+    <div style="margin-top:0.5rem;">
+      <button (click)="iniciarCamara()">Iniciar cámara</button>
+      <button (click)="capturarFrame()">Tomar foto</button>
+      <button (click)="detenerCamara()">Detener</button>
+    </div>
+  </section>
+
+  <!-- Galería -->
+  <section style="margin:1rem 0;">
+    <h3>Galería</h3>
+    <input type="file" accept="image/*" (change)="onArchivoSeleccionado($event)" capture="environment">
+  </section>
+
+  <!-- Previa -->
+  <section *ngIf="previewSrc" style="margin:1rem 0;">
+    <h3>Previa</h3>
+    <img [src]="previewSrc" alt="Previa" style="width:100%;border:1px solid #ccc;border-radius:8px;">
+    <div style="margin-top:0.5rem;">
+      <input type="text" [(ngModel)]="descripcion" placeholder="Descripción (opcional)">
+      <button (click)="subir()">Guardar en BD</button>
+    </div>
+  </section>
+</div>
