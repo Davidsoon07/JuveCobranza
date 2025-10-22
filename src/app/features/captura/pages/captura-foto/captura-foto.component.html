@@ -1,30 +1,84 @@
-
-<div class="container" style="max-width:720px;margin:1rem auto;">
-  <h2>JuventudesCobranza - Captura</h2>
-  <!-- Cámara -->
-  <section style="margin:1rem 0;">
-    <h3>Cámara</h3>
-    <video #video autoplay playsinline style="width:100%;border:1px solid #ccc;border-radius:8px;"></video>
-    <div style="margin-top:0.5rem;">
-      <button (click)="iniciarCamara()">Iniciar cámara</button>
-      <button (click)="capturarFrame()">Tomar foto</button>
-      <button (click)="detenerCamara()">Detener</button>
-    </div>
-  </section>
-
-  <!-- Galería -->
-  <section style="margin:1rem 0;">
-    <h3>Galería</h3>
-    <input type="file" accept="image/*" (change)="onArchivoSeleccionado($event)" capture="environment">
-  </section>
-
-  <!-- Previa -->
-  <section *ngIf="previewSrc" style="margin:1rem 0;">
-    <h3>Previa</h3>
-    <img [src]="previewSrc" alt="Previa" style="width:100%;border:1px solid #ccc;border-radius:8px;">
-    <div style="margin-top:0.5rem;">
-      <input type="text" [(ngModel)]="descripcion" placeholder="Descripción (opcional)">
-      <button (click)="subir()">Guardar en BD</button>
-    </div>
-  </section>
+  <!-- ======================= TAB CÁMARA ======================= -->
+<div class="tab-panel" *ngIf="activeTab==='camara'">
+<div class="camera-area">
+<video #video autoplay playsinline></video>
+ 
+      <!-- Botones dinámicos -->
+<div class="camera-controls" *ngIf="cameraActive">
+<button class="btn green" (click)="takePhoto()"><i class="fa-solid fa-camera"></i> Tomar Foto</button>
+<button class="btn red" (click)="stopCamera()"><i class="fa-solid fa-circle-xmark"></i> Detener</button>
+</div>
+ 
+      <div *ngIf="!cameraActive">
+<button class="camera-btn" (click)="startCamera()">
+<i class="fa fa-camera"></i>
+</button>
+<p>Presiona "Iniciar Cámara" para comenzar</p>
+</div>
+</div>
+ 
+    <!-- Evidencias capturadas -->
+<div class="evidencias" *ngIf="photos.length > 0">
+<div class="header">
+<h4><i class="fa fa-image"></i> Evidencias Capturadas</h4>
+<span class="badge">{{ photos.length }} foto{{ photos.length > 1 ? 's' : '' }}</span>
+</div>
+<div class="photo-list">
+<div class="photo-card" *ngFor="let photo of photos; let i = index">
+<img [src]="photo.dataUrl" />
+<div class="photo-info">
+<p><b>Evidencia #{{ i + 1 }}</b></p>
+<small>{{ photo.date | date:'dd MMM y, h:mm a' }}</small>
+</div>
+<div class="photo-actions">
+<button (click)="downloadPhoto(photo)"><i class="fa fa-download"></i></button>
+<button (click)="deletePhoto(i)"><i class="fa fa-trash"></i></button>
+</div>
+</div>
+</div>
+</div>
+ 
+    <!-- Instrucciones -->
+<div class="instructions">
+<h4><i class="fa fa-info-circle"></i> Instrucciones</h4>
+<ul>
+<li>Asegúrate de tener buena iluminación</li>
+<li>Mantén la cámara estable al capturar</li>
+<li>Las fotos se guardan automáticamente en alta calidad</li>
+</ul>
+</div>
+ 
+    <!-- Estadísticas -->
+<div class="stats">
+<div class="stat green">
+<h3>{{ photos.length }}</h3>
+<p>Fotos Capturadas</p>
+</div>
+<div class="stat blue">
+<h3>{{ cameraActive ? 'Activa' : 'Inactiva' }}</h3>
+<p>Estado del Sistema</p>
+</div>
+<div class="stat pink">
+<h3>HD</h3>
+<p>Calidad de Captura</p>
+</div>
+</div>
+</div>
+ 
+  <!-- ======================= TAB GALERÍA ======================= -->
+<div class="tab-panel" *ngIf="activeTab==='galeria'">
+<div class="upload-area">
+<i class="fa fa-cloud-upload-alt"></i>
+<p>Arrastra y suelta tus fotos<br />o haz clic para seleccionarlas</p>
+<button class="btn" (click)="fileInput.click()">Seleccionar Archivos</button>
+<input
+        #fileInput
+        type="file"
+        multiple
+        accept=".jpg,.jpeg,.png"
+        (change)="onFileSelect($event)"
+        hidden
+      />
+<small>Formatos soportados: JPG, PNG • Múltiples archivos permitidos</small>
+</div>
 </div>

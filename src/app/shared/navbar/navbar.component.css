@@ -1,0 +1,50 @@
+/* ======= NAVBAR ======= */
+.navbar {
+  background: linear-gradient(90deg, #6236ff, #d91d73);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 30px;
+  color: white;
+  border-radius: 0 0 8px 8px;
+}
+ 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+ 
+.logo {
+  background: #fff;
+  color: #6236ff;
+  font-weight: 700;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+ 
+.brand h1 {
+  margin: 0;
+  font-size: 18px;
+}
+ 
+.brand span {
+  font-size: 12px;
+  opacity: 0.8;
+}
+ 
+.nav-item {
+  color: #fff;
+  text-decoration: none;
+  margin-left: 20px;
+  font-weight: 500;
+  transition: opacity 0.3s;
+}
+.nav-item:hover {
+  opacity: 0.8;
+}
+ 

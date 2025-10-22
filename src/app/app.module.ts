@@ -4,9 +4,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SharedModule } from './shared/shared.module';
 import { provideHttpClient } from '@angular/common/http';
+import { Login } from './auth/login/login';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, Login],
   imports: [BrowserModule, AppRoutingModule, SharedModule],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent]

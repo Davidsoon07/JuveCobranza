@@ -1,84 +1,77 @@
-import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
-import { FotosService } from '../../../../core/services/fotos.service';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 
-
+interface Photo {
+  dataUrl: string;
+  date: Date;
+}
+ 
 @Component({
-  selector: 'app-captura-foto',
-  standalone: false,
+  selector: 'app-root',
+    standalone: false,
   templateUrl: './captura-foto.component.html',
-  styleUrl: './captura-foto.component.css'
+  styleUrls: ['./captura-foto.component.css']
 })
-export class CapturaFotoComponent implements OnDestroy{
-
-  @ViewChild('video', { static: true }) videoRef!: ElementRef<HTMLVideoElement>;
-  private mediaStream?: MediaStream;
-
-  fileParaSubir?: File;
-  previewSrc: string | null = null;
-  descripcion = '';
-
-  constructor(private fotosSrv: FotosService) {}
-
-  async iniciarCamara() {
+export class CapturaFotoComponent {
+    activeTab: 'camara' | 'galeria' = 'camara';
+  cameraActive = false;
+  photos: Photo[] = [];
+ 
+  @ViewChild('video', { static: false }) video!: ElementRef<HTMLVideoElement>;
+ 
+  stream: MediaStream | null = null;
+ 
+  setTab(tab: 'camara' | 'galeria') {
+    this.activeTab = tab;
+  }
+ 
+  async startCamera() {
     try {
-      this.mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }, audio: false
-      });
-      this.videoRef.nativeElement.srcObject = this.mediaStream;
-    } catch (e) {
-      alert('No se pudo acceder a la cámara: ' + (e as Error).message);
+      this.stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      this.video.nativeElement.srcObject = this.stream;
+      this.cameraActive = true;
+    } catch (err) {
+      alert('No se pudo acceder a la cámara.');
+      console.error(err);
     }
   }
-
-  detenerCamara() {
-    this.mediaStream?.getTracks().forEach(t => t.stop());
-    this.mediaStream = undefined;
+ 
+  stopCamera() {
+    this.stream?.getTracks().forEach(track => track.stop());
+    this.cameraActive = false;
   }
-
-  capturarFrame() {
-    const video = this.videoRef.nativeElement;
+ 
+  takePhoto() {
+    const video = this.video.nativeElement;
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob(blob => {
-      if (!blob) return;
-      const file = new File([blob], `captura_${Date.now()}.jpg`, { type: 'image/jpeg' });
-      this.setPreview(file);
-    }, 'image/jpeg', 0.9);
+    if (ctx) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/png');
+      this.photos.unshift({ dataUrl, date: new Date() });
+    }
   }
-
-  onArchivoSeleccionado(ev: Event) {
-    const input = ev.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (file) this.setPreview(file);
+ 
+  downloadPhoto(photo: Photo) {
+    const link = document.createElement('a');
+    link.href = photo.dataUrl;
+    link.download = `evidencia-${photo.date.toISOString()}.png`;
+    link.click();
   }
-
-  private setPreview(file: File) {
-    this.fileParaSubir = file;
-    const reader = new FileReader();
-    reader.onload = () => this.previewSrc = reader.result as string;
-    reader.readAsDataURL(file);
+ 
+  deletePhoto(index: number) {
+    this.photos.splice(index, 1);
   }
-
-  subir() {
-    if (!this.fileParaSubir) return alert('No hay imagen para subir.');
-    this.fotosSrv.subirArchivos(this.fileParaSubir, { descripcion: this.descripcion })
-      .subscribe({
-        next: (res) => {
-          alert('Imagen guardada con id ' + res.id);
-          this.previewSrc = null;
-          this.descripcion = '';
-          this.fileParaSubir = undefined;
-        },
-        error: (err) => alert('Error al subir: ' + (err?.error?.message || err.message))
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.detenerCamara();
+ 
+  onFileSelect(event: any) {
+    const files: FileList = event.target.files;
+    for (let i = 0; i < files.length; i++) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.photos.unshift({ dataUrl: e.target.result, date: new Date() });
+      };
+      reader.readAsDataURL(files[i]);
+    }
   }
 }
